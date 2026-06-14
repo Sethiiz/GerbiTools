@@ -37,14 +37,28 @@ STATUS_INCOMPLETE = _steam_mod.STATUS_INCOMPLETE
 hltb_search    = _hltb_mod.search
 
 
+def _parse_profile(raw: str) -> str:
+    raw = raw.strip()
+    if re.fullmatch(r"\d{17}", raw):
+        return raw
+    m = re.search(r"/profiles/(\d{17})", raw)
+    if m:
+        return m.group(1)
+    m = re.search(r"/id/([^/?\s]+)", raw)
+    if m:
+        return m.group(1)
+    return raw
+
+
 async def build_report(api_key: str, profile: str) -> PlatinumReport:
     async with aiohttp.ClientSession() as session:
         client = SteamClient(session, api_key)
 
-        if not re.fullmatch(r"\d{17}", profile):
-            steam_id = await client.resolve_vanity(profile)
+        token = _parse_profile(profile)
+        if not re.fullmatch(r"\d{17}", token):
+            steam_id = await client.resolve_vanity(token)
         else:
-            steam_id = profile
+            steam_id = token
 
         games = await client.get_owned_games(steam_id)
 
