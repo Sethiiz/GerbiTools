@@ -17,3 +17,4 @@ class PlatinumReport(BaseModel):
     platinados: int
     incompletos: int
     nunca_jogados: int
+    privado: bool = False

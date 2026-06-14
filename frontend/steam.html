@@ -88,6 +88,11 @@
     .platinado    { color: #4caf50; }
     .incompleto   { color: #ffc107; }
     .nunca-jogado { color: #888; }
+
+    .privacy-warning { background: rgba(255,152,0,0.08); border: 1px solid rgba(255,152,0,0.35); border-radius: 8px; padding: 0.9rem 1.2rem; margin: 1.2rem 0; font-size: 0.87rem; color: #ffb74d; line-height: 1.6; }
+    .privacy-warning strong { color: #ffa726; }
+    .privacy-steps { margin-top: 0.5rem; color: #c8a060; font-size: 0.82rem; }
+    .privacy-steps code { background: rgba(255,255,255,0.06); border-radius: 4px; padding: 0.1rem 0.4rem; font-family: monospace; color: #ffd08a; }
   </style>
 </head>
 <body>
@@ -148,7 +153,15 @@
     }
 
     function renderAll(data) {
-      results.innerHTML = `
+      const privacyBanner = data.privado ? `
+        <div class="privacy-warning">
+          <strong>⚠️ Seu perfil Steam está privado.</strong> Os dados de conquistas podem estar incompletos ou zerados.
+          <div class="privacy-steps">
+            Para corrigir: abra o <strong>Steam</strong> → clique no seu nome → <code>Ver meu perfil</code> → <code>Editar perfil</code> → <code>Configurações de privacidade</code> → <strong>Detalhes do meu jogo</strong> → selecione <code>Público</code>
+          </div>
+        </div>` : "";
+
+      results.innerHTML = privacyBanner + `
         <div class="summary">
           <div>Total: <span>${data.total}</span></div>
           <div>Platinados: <span class="platinado">${data.platinados}</span></div>

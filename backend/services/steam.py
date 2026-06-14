@@ -60,6 +60,9 @@ async def build_report(api_key: str, profile: str) -> PlatinumReport:
         else:
             steam_id = token
 
+        summary = await client.get_player_summary(steam_id)
+        is_private = summary.get("communityvisibilitystate", 1) != 3
+
         games = await client.get_owned_games(steam_id)
 
         steam_sem = asyncio.Semaphore(STEAM_SEM)
@@ -102,4 +105,5 @@ async def build_report(api_key: str, profile: str) -> PlatinumReport:
             platinados=sum(1 for e in entries if e.status == STATUS_PLATINADO),
             incompletos=sum(1 for e in entries if e.status == STATUS_INCOMPLETE),
             nunca_jogados=sum(1 for e in entries if e.status == STATUS_NEVER),
+            privado=is_private,
         )
