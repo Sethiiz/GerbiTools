@@ -1,0 +1,6 @@
+[submodule "tools/DeadIslandCollectables"]
+	path = tools/DeadIslandCollectables
+	url = https://github.com/Sethiiz/DeadIslandCollectables.git
+[submodule "tools/SteamPlatViewer"]
+	path = tools/SteamPlatViewer
+	url = https://github.com/Sethiiz/SteamPlatViewer.git

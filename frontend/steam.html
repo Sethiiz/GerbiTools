@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Steam Platinum Viewer | GerbiTools</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e0e0e0; min-height: 100vh; }
+    header { padding: 1.5rem 2rem; border-bottom: 1px solid #2a2a3a; display: flex; align-items: center; gap: 1rem; }
+    header a { color: #888; text-decoration: none; font-size: 0.9rem; }
+    header h1 { font-size: 1.3rem; color: #fff; }
+    main { padding: 2rem; max-width: 900px; }
+    .search-row { display: flex; gap: 0.8rem; }
+    .search-row input { flex: 1; padding: 0.65rem 1rem; background: #1a1a2e; border: 1px solid #2a2a3a; border-radius: 6px; color: #e0e0e0; font-size: 0.95rem; }
+    .search-row input:focus { outline: none; border-color: #5865f2; }
+    .btn { padding: 0.65rem 1.4rem; background: #5865f2; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.95rem; white-space: nowrap; }
+    .btn:disabled { background: #3a3a5a; cursor: not-allowed; }
+    #status { margin-top: 1.2rem; color: #888; font-size: 0.9rem; }
+    .summary { background: #1a1a2e; border-radius: 8px; padding: 1rem 1.5rem; margin: 1.5rem 0; display: flex; gap: 2rem; flex-wrap: wrap; }
+    .summary div { font-size: 0.9rem; color: #888; }
+    .summary span { color: #fff; font-weight: bold; }
+    .export-btn { margin-bottom: 1rem; padding: 0.5rem 1.2rem; background: #2a2a3a; color: #ccc; border: 1px solid #3a3a5a; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    th { background: #1a1a2e; padding: 0.6rem 0.8rem; text-align: left; color: #aaa; font-weight: 600; cursor: pointer; user-select: none; }
+    th:hover { color: #fff; }
+    td { padding: 0.55rem 0.8rem; border-top: 1px solid #1a1a2e; }
+    td a { color: #5865f2; text-decoration: none; }
+    td a:hover { text-decoration: underline; }
+    .platinado    { color: #4caf50; }
+    .incompleto   { color: #ffc107; }
+    .nunca-jogado { color: #888; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/">← GerbiTools</a>
+    <h1>Steam Platinum Viewer</h1>
+  </header>
+  <main>
+    <div class="search-row">
+      <input type="text" id="profileInput" placeholder="SteamID64 ou URL do perfil (ex: steamcommunity.com/id/seu-nome)">
+      <button class="btn" id="searchBtn" onclick="search()">Buscar</button>
+    </div>
+    <div id="status"></div>
+    <div id="results"></div>
+  </main>
+  <script>
+    const profileInput = document.getElementById("profileInput");
+    const searchBtn    = document.getElementById("searchBtn");
+    const status       = document.getElementById("status");
+    const results      = document.getElementById("results");
+
+    profileInput.addEventListener("keydown", e => { if (e.key === "Enter") search(); });
+
+    let currentGames = [];
+
+    async function search() {
+      const profile = profileInput.value.trim();
+      if (!profile) return;
+
+      searchBtn.disabled = true;
+      status.textContent = "Buscando jogos... isso pode levar alguns minutos.";
+      results.innerHTML  = "";
+      currentGames       = [];
+
+      try {
+        const res  = await fetch(`/steam/platinum?profile=${encodeURIComponent(profile)}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Erro desconhecido");
+        currentGames = data.games;
+        render(data);
+        status.textContent = "";
+      } catch (e) {
+        status.textContent = "Erro: " + e.message;
+      } finally {
+        searchBtn.disabled = false;
+      }
+    }
+
+    function statusClass(s) {
+      if (s === "Platinado")    return "platinado";
+      if (s === "Incompleto")   return "incompleto";
+      return "nunca-jogado";
+    }
+
+    function render(data) {
+      let html = `
+        <div class="summary">
+          <div>Total: <span>${data.total}</span></div>
+          <div>Platinados: <span class="platinado">${data.platinados}</span></div>
+          <div>Incompletos: <span class="incompleto">${data.incompletos}</span></div>
+          <div>Nunca jogados: <span class="nunca-jogado">${data.nunca_jogados}</span></div>
+        </div>
+        <button class="export-btn" onclick="exportXlsx()">Exportar Excel</button>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Jogo</th>
+              <th>Status</th>
+              <th>Conquistas</th>
+              <th>Horas (HLTB)</th>
+              <th>Link</th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+      data.games.forEach((g, i) => {
+        const cls = statusClass(g.status);
+        html += `<tr>
+          <td>${i + 1}</td>
+          <td>${g.name}</td>
+          <td class="${cls}">${g.status}</td>
+          <td>${g.achievements}</td>
+          <td>${g.hours}h</td>
+          <td><a href="${g.link_hltb}" target="_blank">HLTB</a></td>
+        </tr>`;
+      });
+
+      html += "</tbody></table>";
+      results.innerHTML = html;
+    }
+
+    async function exportXlsx() {
+      const profile = profileInput.value.trim();
+      if (!profile) return;
+      window.open(`/steam/platinum/export?profile=${encodeURIComponent(profile)}`, "_blank");
+    }
+  </script>
+</body>
+</html>

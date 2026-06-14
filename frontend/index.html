@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GerbiTools</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e0e0e0; min-height: 100vh; }
+    header { padding: 2rem; border-bottom: 1px solid #2a2a3a; }
+    header h1 { font-size: 1.8rem; color: #fff; }
+    header p  { color: #888; margin-top: 0.3rem; }
+    .tools { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; padding: 2rem; }
+    .card { background: #1a1a2e; border: 1px solid #2a2a3a; border-radius: 10px; padding: 1.5rem; text-decoration: none; color: inherit; transition: border-color 0.2s; }
+    .card:hover { border-color: #5865f2; }
+    .card h2 { font-size: 1.1rem; color: #fff; margin-bottom: 0.5rem; }
+    .card p  { font-size: 0.9rem; color: #888; line-height: 1.5; }
+    .tag { display: inline-block; margin-top: 1rem; font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 4px; background: #2a2a3a; color: #aaa; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>GerbiTools</h1>
+    <p>Ferramentas para jogadores</p>
+  </header>
+  <main class="tools">
+    <a class="card" href="/deadisland.html">
+      <h2>Dead Island — Personal IDs</h2>
+      <p>Faça upload do seu save e veja quais cartões de identidade você já coletou e quais ainda faltam por área.</p>
+      <span class="tag">Dead Island DE</span>
+    </a>
+    <a class="card" href="/steam.html">
+      <h2>Steam Platinum Viewer</h2>
+      <p>Veja todos os jogos da sua conta Steam com conquistas, ordenados pelo tempo para platinar segundo o HowLongToBeat.</p>
+      <span class="tag">Steam</span>
+    </a>
+  </main>
+</body>
+</html>

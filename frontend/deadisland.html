@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dead Island — Personal IDs | GerbiTools</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e0e0e0; min-height: 100vh; }
+    header { padding: 1.5rem 2rem; border-bottom: 1px solid #2a2a3a; display: flex; align-items: center; gap: 1rem; }
+    header a { color: #888; text-decoration: none; font-size: 0.9rem; }
+    header h1 { font-size: 1.3rem; color: #fff; }
+    main { padding: 2rem; max-width: 800px; }
+    .upload-box { border: 2px dashed #2a2a3a; border-radius: 10px; padding: 2rem; text-align: center; cursor: pointer; transition: border-color 0.2s; }
+    .upload-box:hover, .upload-box.drag { border-color: #5865f2; }
+    .upload-box p { color: #888; margin-top: 0.5rem; font-size: 0.9rem; }
+    input[type=file] { display: none; }
+    .btn { display: inline-block; margin-top: 1rem; padding: 0.6rem 1.4rem; background: #5865f2; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.95rem; }
+    .btn:disabled { background: #3a3a5a; cursor: not-allowed; }
+    #status { margin-top: 1.5rem; color: #888; font-size: 0.9rem; }
+    #results { margin-top: 1.5rem; }
+    .summary { background: #1a1a2e; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; font-size: 1rem; }
+    .summary span { color: #5865f2; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th { background: #1a1a2e; padding: 0.6rem 0.8rem; text-align: left; color: #aaa; font-weight: 600; }
+    td { padding: 0.55rem 0.8rem; border-top: 1px solid #1a1a2e; }
+    tr.complete td { color: #4caf50; }
+    tr.incomplete td { color: #e0e0e0; }
+    .missing { color: #ff6b6b; font-size: 0.82rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/">← GerbiTools</a>
+    <h1>Dead Island — Personal IDs</h1>
+  </header>
+  <main>
+    <div class="upload-box" id="dropzone">
+      <p>Arraste o arquivo <strong>save_0.sav</strong> aqui</p>
+      <p>ou</p>
+      <label class="btn" for="fileInput">Selecionar arquivo</label>
+      <input type="file" id="fileInput" accept=".sav">
+    </div>
+    <div id="status"></div>
+    <div id="results"></div>
+  </main>
+  <script>
+    const dropzone  = document.getElementById("dropzone");
+    const fileInput = document.getElementById("fileInput");
+    const status    = document.getElementById("status");
+    const results   = document.getElementById("results");
+
+    fileInput.addEventListener("change", () => { if (fileInput.files[0]) upload(fileInput.files[0]); });
+
+    dropzone.addEventListener("dragover",  e => { e.preventDefault(); dropzone.classList.add("drag"); });
+    dropzone.addEventListener("dragleave", () => dropzone.classList.remove("drag"));
+    dropzone.addEventListener("drop", e => {
+      e.preventDefault();
+      dropzone.classList.remove("drag");
+      const file = e.dataTransfer.files[0];
+      if (file) upload(file);
+    });
+
+    async function upload(file) {
+      status.textContent = "Analisando save...";
+      results.innerHTML  = "";
+
+      const form = new FormData();
+      form.append("file", file);
+
+      try {
+        const res  = await fetch("/deadisland/check", { method: "POST", body: form });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Erro desconhecido");
+        render(data);
+        status.textContent = "";
+      } catch (e) {
+        status.textContent = "Erro: " + e.message;
+      }
+    }
+
+    function render(data) {
+      const pct = Math.round(data.collected_count / data.total * 100);
+      let html = `
+        <div class="summary">
+          Coletados: <span>${data.collected_count}/${data.total}</span> &nbsp;|&nbsp;
+          Faltando: <span>${data.missing_count}</span> &nbsp;|&nbsp;
+          ${pct}% completo
+        </div>
+        <table>
+          <thead><tr><th>Área</th><th>Progresso</th><th>Faltando</th></tr></thead>
+          <tbody>`;
+
+      for (const area of data.areas) {
+        const got = area.total - area.missing.length;
+        const cls = area.complete ? "complete" : "incomplete";
+        const missingStr = area.complete ? "—" : `<span class="missing">${area.missing.map(n => "#" + n).join(", ")}</span>`;
+        html += `<tr class="${cls}">
+          <td>${area.name}</td>
+          <td>${got}/${area.total}${area.complete ? " ✓" : ""}</td>
+          <td>${missingStr}</td>
+        </tr>`;
+      }
+
+      html += "</tbody></table>";
+      results.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
