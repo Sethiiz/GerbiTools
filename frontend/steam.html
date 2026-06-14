@@ -10,20 +10,55 @@
     header { padding: 1.5rem 2rem; border-bottom: 1px solid #2a2a3a; display: flex; align-items: center; gap: 1rem; }
     header a { color: #888; text-decoration: none; font-size: 0.9rem; }
     header h1 { font-size: 1.3rem; color: #fff; }
-    main { padding: 2rem; max-width: 900px; }
+    main { padding: 2rem; max-width: 960px; }
+
     .search-row { display: flex; gap: 0.8rem; }
     .search-row input { flex: 1; padding: 0.65rem 1rem; background: #1a1a2e; border: 1px solid #2a2a3a; border-radius: 6px; color: #e0e0e0; font-size: 0.95rem; }
     .search-row input:focus { outline: none; border-color: #5865f2; }
     .btn { padding: 0.65rem 1.4rem; background: #5865f2; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.95rem; white-space: nowrap; }
     .btn:disabled { background: #3a3a5a; cursor: not-allowed; }
+
     #status { margin-top: 1.2rem; color: #888; font-size: 0.9rem; }
+
     .summary { background: #1a1a2e; border-radius: 8px; padding: 1rem 1.5rem; margin: 1.5rem 0; display: flex; gap: 2rem; flex-wrap: wrap; }
     .summary div { font-size: 0.9rem; color: #888; }
     .summary span { color: #fff; font-weight: bold; }
-    .export-btn { margin-bottom: 1rem; padding: 0.5rem 1.2rem; background: #2a2a3a; color: #ccc; border: 1px solid #3a3a5a; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+
+    /* toolbar acima da tabela */
+    .toolbar { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
+    .filter-btn { padding: 0.45rem 1rem; background: #1a1a2e; color: #ccc; border: 1px solid #2a2a3a; border-radius: 6px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; transition: border-color 0.15s; }
+    .filter-btn:hover { border-color: #5865f2; color: #fff; }
+    .filter-btn.active { border-color: #5865f2; color: #5865f2; }
+    .active-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .tag-chip { background: #2a2a3a; border: 1px solid #5865f2; border-radius: 4px; padding: 0.2rem 0.6rem; font-size: 0.75rem; color: #aaa; cursor: pointer; }
+    .tag-chip:hover { background: #3a3a5a; }
+    .export-btn { margin-left: auto; padding: 0.45rem 1rem; background: #2a2a3a; color: #ccc; border: 1px solid #3a3a5a; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .export-btn:hover { border-color: #5865f2; color: #fff; }
+
+    /* painel de filtros */
+    .filter-panel { background: #1a1a2e; border: 1px solid #2a2a3a; border-radius: 8px; padding: 1.2rem 1.5rem; margin-bottom: 1rem; display: none; }
+    .filter-panel.open { display: block; }
+    .filter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.2rem; }
+    .filter-group label.group-label { display: block; font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .checkbox-row { display: flex; flex-direction: column; gap: 0.35rem; }
+    .checkbox-row label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer; }
+    .checkbox-row input[type=checkbox] { accent-color: #5865f2; width: 14px; height: 14px; }
+    .range-row { display: flex; gap: 0.5rem; align-items: center; }
+    .range-row input[type=number] { width: 80px; padding: 0.35rem 0.5rem; background: #0f1117; border: 1px solid #2a2a3a; border-radius: 4px; color: #e0e0e0; font-size: 0.85rem; }
+    .range-row input[type=number]:focus { outline: none; border-color: #5865f2; }
+    .range-row span { color: #555; font-size: 0.8rem; }
+    .filter-name input { width: 100%; padding: 0.35rem 0.6rem; background: #0f1117; border: 1px solid #2a2a3a; border-radius: 4px; color: #e0e0e0; font-size: 0.85rem; }
+    .filter-name input:focus { outline: none; border-color: #5865f2; }
+    .filter-actions { display: flex; gap: 0.6rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #2a2a3a; }
+    .filter-actions button { padding: 0.4rem 1rem; border-radius: 5px; font-size: 0.85rem; cursor: pointer; border: none; }
+    .btn-apply { background: #5865f2; color: #fff; }
+    .btn-clear  { background: #2a2a3a; color: #ccc; }
+    .btn-clear:hover { background: #3a3a5a; }
+
+    /* tabela */
+    .table-info { font-size: 0.8rem; color: #555; margin-bottom: 0.5rem; }
     table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
-    th { background: #1a1a2e; padding: 0.6rem 0.8rem; text-align: left; color: #aaa; font-weight: 600; cursor: pointer; user-select: none; }
-    th:hover { color: #fff; }
+    th { background: #1a1a2e; padding: 0.6rem 0.8rem; text-align: left; color: #aaa; font-weight: 600; }
     td { padding: 0.55rem 0.8rem; border-top: 1px solid #1a1a2e; }
     td a { color: #5865f2; text-decoration: none; }
     td a:hover { text-decoration: underline; }
@@ -40,36 +75,39 @@
   <main>
     <div class="search-row">
       <input type="text" id="profileInput" placeholder="SteamID64 ou URL do perfil (ex: steamcommunity.com/id/seu-nome)">
-      <button class="btn" id="searchBtn" onclick="search()">Buscar</button>
+      <button class="btn" id="searchBtn" onclick="doSearch()">Buscar</button>
     </div>
     <div id="status"></div>
     <div id="results"></div>
   </main>
+
   <script>
     const profileInput = document.getElementById("profileInput");
     const searchBtn    = document.getElementById("searchBtn");
     const status       = document.getElementById("status");
     const results      = document.getElementById("results");
 
-    profileInput.addEventListener("keydown", e => { if (e.key === "Enter") search(); });
+    profileInput.addEventListener("keydown", e => { if (e.key === "Enter") doSearch(); });
 
-    let currentGames = [];
+    let allGames = [];
+    let activeFilters = {};
 
-    async function search() {
+    async function doSearch() {
       const profile = profileInput.value.trim();
       if (!profile) return;
 
       searchBtn.disabled = true;
       status.textContent = "Buscando jogos... isso pode levar alguns minutos.";
       results.innerHTML  = "";
-      currentGames       = [];
+      allGames           = [];
+      activeFilters      = {};
 
       try {
         const res  = await fetch(`/steam/platinum?profile=${encodeURIComponent(profile)}`);
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || "Erro desconhecido");
-        currentGames = data.games;
-        render(data);
+        allGames = data.games;
+        renderAll(data);
         status.textContent = "";
       } catch (e) {
         status.textContent = "Erro: " + e.message;
@@ -79,20 +117,70 @@
     }
 
     function statusClass(s) {
-      if (s === "Platinado")    return "platinado";
-      if (s === "Incompleto")   return "incompleto";
+      if (s === "Platinado")  return "platinado";
+      if (s === "Incompleto") return "incompleto";
       return "nunca-jogado";
     }
 
-    function render(data) {
-      let html = `
+    function renderAll(data) {
+      const hoursMax = Math.ceil(Math.max(...data.games.map(g => g.hours), 0));
+      const achMax   = Math.max(...data.games.map(g => g.achievements), 0);
+
+      results.innerHTML = `
         <div class="summary">
           <div>Total: <span>${data.total}</span></div>
           <div>Platinados: <span class="platinado">${data.platinados}</span></div>
           <div>Incompletos: <span class="incompleto">${data.incompletos}</span></div>
           <div>Nunca jogados: <span class="nunca-jogado">${data.nunca_jogados}</span></div>
         </div>
-        <button class="export-btn" onclick="exportXlsx()">Exportar Excel</button>
+
+        <div class="toolbar">
+          <button class="filter-btn" id="filterToggle" onclick="togglePanel()">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M1.5 2h13l-5 6v5l-3-1.5V8L1.5 2z"/></svg>
+            Filtros
+          </button>
+          <div class="active-tags" id="activeTags"></div>
+          <button class="export-btn" onclick="exportXlsx()">Exportar Excel</button>
+        </div>
+
+        <div class="filter-panel" id="filterPanel">
+          <div class="filter-grid">
+            <div class="filter-group">
+              <label class="group-label">Status</label>
+              <div class="checkbox-row">
+                <label><input type="checkbox" id="fPlatinado"   value="Platinado"    checked> Platinado</label>
+                <label><input type="checkbox" id="fIncompleto"  value="Incompleto"   checked> Incompleto</label>
+                <label><input type="checkbox" id="fNunca"       value="Nunca jogado" checked> Nunca jogado</label>
+              </div>
+            </div>
+            <div class="filter-group">
+              <label class="group-label">Horas HLTB</label>
+              <div class="range-row">
+                <input type="number" id="fHoursMin" min="0" placeholder="Min">
+                <span>—</span>
+                <input type="number" id="fHoursMax" min="0" placeholder="Max" value="${hoursMax}">
+              </div>
+            </div>
+            <div class="filter-group">
+              <label class="group-label">Conquistas</label>
+              <div class="range-row">
+                <input type="number" id="fAchMin" min="0" placeholder="Min">
+                <span>—</span>
+                <input type="number" id="fAchMax" min="0" placeholder="Max" value="${achMax}">
+              </div>
+            </div>
+            <div class="filter-group filter-name">
+              <label class="group-label">Nome do jogo</label>
+              <input type="text" id="fName" placeholder="Buscar...">
+            </div>
+          </div>
+          <div class="filter-actions">
+            <button class="btn-apply" onclick="applyFilters()">Aplicar</button>
+            <button class="btn-clear"  onclick="clearFilters()">Limpar</button>
+          </div>
+        </div>
+
+        <div class="table-info" id="tableInfo"></div>
         <table>
           <thead>
             <tr>
@@ -104,25 +192,120 @@
               <th>Link</th>
             </tr>
           </thead>
-          <tbody>`;
+          <tbody id="tableBody"></tbody>
+        </table>`;
 
-      data.games.forEach((g, i) => {
-        const cls = statusClass(g.status);
-        html += `<tr>
+      renderRows(allGames);
+    }
+
+    function renderRows(games) {
+      const tbody    = document.getElementById("tableBody");
+      const info     = document.getElementById("tableInfo");
+      if (!tbody) return;
+
+      info.textContent = games.length < allGames.length
+        ? `Mostrando ${games.length} de ${allGames.length} jogos`
+        : "";
+
+      tbody.innerHTML = games.map((g, i) => `
+        <tr>
           <td>${i + 1}</td>
           <td>${g.name}</td>
-          <td class="${cls}">${g.status}</td>
+          <td class="${statusClass(g.status)}">${g.status}</td>
           <td>${g.achievements}</td>
           <td>${g.hours}h</td>
           <td><a href="${g.link_hltb}" target="_blank">HLTB</a></td>
-        </tr>`;
-      });
-
-      html += "</tbody></table>";
-      results.innerHTML = html;
+        </tr>`).join("");
     }
 
-    async function exportXlsx() {
+    function togglePanel() {
+      const panel  = document.getElementById("filterPanel");
+      const btn    = document.getElementById("filterToggle");
+      const isOpen = panel.classList.toggle("open");
+      btn.classList.toggle("active", isOpen);
+    }
+
+    function applyFilters() {
+      const statuses = ["fPlatinado","fIncompleto","fNunca"]
+        .filter(id => document.getElementById(id).checked)
+        .map(id => document.getElementById(id).value);
+
+      const hoursMin = parseFloat(document.getElementById("fHoursMin").value) || 0;
+      const hoursMax = parseFloat(document.getElementById("fHoursMax").value) ?? Infinity;
+      const achMin   = parseInt(document.getElementById("fAchMin").value)   || 0;
+      const achMax   = parseInt(document.getElementById("fAchMax").value)   ?? Infinity;
+      const name     = document.getElementById("fName").value.trim().toLowerCase();
+
+      activeFilters = { statuses, hoursMin, hoursMax, achMin, achMax, name };
+
+      const filtered = allGames.filter(g =>
+        statuses.includes(g.status) &&
+        g.hours        >= hoursMin &&
+        g.hours        <= (hoursMax || Infinity) &&
+        g.achievements >= achMin &&
+        g.achievements <= (achMax || Infinity) &&
+        (!name || g.name.toLowerCase().includes(name))
+      );
+
+      renderRows(filtered);
+      updateTags();
+
+      // fecha o painel após aplicar
+      document.getElementById("filterPanel").classList.remove("open");
+      document.getElementById("filterToggle").classList.remove("active");
+    }
+
+    function clearFilters() {
+      document.getElementById("fPlatinado").checked  = true;
+      document.getElementById("fIncompleto").checked = true;
+      document.getElementById("fNunca").checked      = true;
+      document.getElementById("fHoursMin").value = "";
+      document.getElementById("fHoursMax").value = "";
+      document.getElementById("fAchMin").value   = "";
+      document.getElementById("fAchMax").value   = "";
+      document.getElementById("fName").value     = "";
+      activeFilters = {};
+      renderRows(allGames);
+      updateTags();
+    }
+
+    function updateTags() {
+      const container = document.getElementById("activeTags");
+      if (!container) return;
+      const tags = [];
+
+      if (activeFilters.statuses && activeFilters.statuses.length < 3)
+        tags.push({ label: activeFilters.statuses.join(", "), key: "status" });
+      if (activeFilters.hoursMin > 0)
+        tags.push({ label: `≥ ${activeFilters.hoursMin}h`, key: "hoursMin" });
+      if (activeFilters.hoursMax && activeFilters.hoursMax < Infinity)
+        tags.push({ label: `≤ ${activeFilters.hoursMax}h`, key: "hoursMax" });
+      if (activeFilters.achMin > 0)
+        tags.push({ label: `≥ ${activeFilters.achMin} conq.`, key: "achMin" });
+      if (activeFilters.achMax && activeFilters.achMax < Infinity)
+        tags.push({ label: `≤ ${activeFilters.achMax} conq.`, key: "achMax" });
+      if (activeFilters.name)
+        tags.push({ label: `"${activeFilters.name}"`, key: "name" });
+
+      container.innerHTML = tags
+        .map(t => `<span class="tag-chip" title="Clique para remover" onclick="removeFilter('${t.key}')">${t.label} ✕</span>`)
+        .join("");
+    }
+
+    function removeFilter(key) {
+      if (key === "status") {
+        document.getElementById("fPlatinado").checked  = true;
+        document.getElementById("fIncompleto").checked = true;
+        document.getElementById("fNunca").checked      = true;
+      } else if (key === "hoursMin") document.getElementById("fHoursMin").value = "";
+      else if (key === "hoursMax")   document.getElementById("fHoursMax").value = "";
+      else if (key === "achMin")     document.getElementById("fAchMin").value   = "";
+      else if (key === "achMax")     document.getElementById("fAchMax").value   = "";
+      else if (key === "name")       document.getElementById("fName").value     = "";
+      applyFilters();
+    }
+
+    function exportXlsx() {
       const profile = profileInput.value.trim();
       if (!profile) return;
       window.open(`/steam/platinum/export?profile=${encodeURIComponent(profile)}`, "_blank");
