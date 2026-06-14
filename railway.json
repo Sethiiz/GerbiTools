@@ -2,7 +2,7 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "git clone https://github.com/Sethiiz/DeadIslandCollectables.git tools/DeadIslandCollectables && git clone https://github.com/Sethiiz/SteamPlatViewer.git tools/SteamPlatViewer && pip install -r backend/requirements.txt"
+    "buildCommand": "rm -rf tools/DeadIslandCollectables tools/SteamPlatViewer && git clone https://github.com/Sethiiz/DeadIslandCollectables.git tools/DeadIslandCollectables && git clone https://github.com/Sethiiz/SteamPlatViewer.git tools/SteamPlatViewer && pip install -r backend/requirements.txt"
   },
   "deploy": {
     "startCommand": "cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT",
