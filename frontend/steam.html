@@ -76,7 +76,12 @@
     /* tabela */
     .table-info { font-size: 0.8rem; color: #555; margin-bottom: 0.5rem; }
     table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
-    th { background: #1a1a2e; padding: 0.6rem 0.8rem; text-align: left; color: #aaa; font-weight: 600; }
+    th { background: #1a1a2e; padding: 0.6rem 0.8rem; text-align: left; color: #aaa; font-weight: 600; white-space: nowrap; }
+    th.sortable { cursor: pointer; user-select: none; }
+    th.sortable:hover { color: #fff; }
+    th.sort-asc::after  { content: " ↑"; color: #5865f2; }
+    th.sort-desc::after { content: " ↓"; color: #5865f2; }
+    th.sort-asc, th.sort-desc { color: #fff; }
     td { padding: 0.55rem 0.8rem; border-top: 1px solid #1a1a2e; }
     td a { color: #5865f2; text-decoration: none; }
     td a:hover { text-decoration: underline; }
@@ -109,6 +114,8 @@
 
     let allGames = [];
     let activeFilters = {};
+    let currentSort = { key: "hours", dir: "asc" };
+    let lastFiltered = [];
 
     async function doSearch() {
       const profile = profileInput.value.trim();
@@ -203,11 +210,11 @@
         <table>
           <thead>
             <tr>
-              <th>#</th>
-              <th>Jogo</th>
+              <th class="sortable" data-sort="index"        onclick="sortBy('index')">#</th>
+              <th class="sortable" data-sort="name"         onclick="sortBy('name')">Jogo</th>
               <th>Status</th>
-              <th>Conquistas</th>
-              <th>Horas (HLTB)</th>
+              <th class="sortable" data-sort="achievements" onclick="sortBy('achievements')">Conquistas</th>
+              <th class="sortable" data-sort="hours"        onclick="sortBy('hours')">Horas (HLTB)</th>
               <th>Link</th>
             </tr>
           </thead>
@@ -217,16 +224,29 @@
       renderRows(allGames);
     }
 
+    function sortGames(games) {
+      const { key, dir } = currentSort;
+      const mult = dir === "asc" ? 1 : -1;
+      return [...games].sort((a, b) => {
+        if (key === "name")  return mult * a.name.localeCompare(b.name);
+        if (key === "index") return 0; // mantém ordem original
+        return mult * (a[key] - b[key]);
+      });
+    }
+
     function renderRows(games) {
-      const tbody    = document.getElementById("tableBody");
-      const info     = document.getElementById("tableInfo");
+      const tbody = document.getElementById("tableBody");
+      const info  = document.getElementById("tableInfo");
       if (!tbody) return;
+
+      lastFiltered = games;
+      const sorted = sortGames(games);
 
       info.textContent = games.length < allGames.length
         ? `Mostrando ${games.length} de ${allGames.length} jogos`
         : "";
 
-      tbody.innerHTML = games.map((g, i) => `
+      tbody.innerHTML = sorted.map((g, i) => `
         <tr>
           <td>${i + 1}</td>
           <td>${g.name}</td>
@@ -235,6 +255,25 @@
           <td>${g.hours}h</td>
           <td><a href="${g.link_hltb}" target="_blank">HLTB</a></td>
         </tr>`).join("");
+
+      updateSortHeaders();
+    }
+
+    function sortBy(key) {
+      if (currentSort.key === key) {
+        currentSort.dir = currentSort.dir === "asc" ? "desc" : "asc";
+      } else {
+        currentSort = { key, dir: key === "name" ? "asc" : "asc" };
+      }
+      renderRows(lastFiltered.length ? lastFiltered : allGames);
+    }
+
+    function updateSortHeaders() {
+      document.querySelectorAll("th.sortable").forEach(th => {
+        th.classList.remove("sort-asc", "sort-desc");
+        if (th.dataset.sort === currentSort.key)
+          th.classList.add(currentSort.dir === "asc" ? "sort-asc" : "sort-desc");
+      });
     }
 
     function togglePanel() {
