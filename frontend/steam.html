@@ -24,36 +24,54 @@
     .summary div { font-size: 0.9rem; color: #888; }
     .summary span { color: #fff; font-weight: bold; }
 
-    /* toolbar acima da tabela */
+    /* toolbar */
     .toolbar { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
-    .filter-btn { padding: 0.45rem 1rem; background: #1a1a2e; color: #ccc; border: 1px solid #2a2a3a; border-radius: 6px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; transition: border-color 0.15s; }
+    .filter-btn { padding: 0.45rem 1rem; background: #1a1a2e; color: #ccc; border: 1px solid #2a2a3a; border-radius: 6px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; transition: all 0.15s; }
     .filter-btn:hover { border-color: #5865f2; color: #fff; }
-    .filter-btn.active { border-color: #5865f2; color: #5865f2; }
+    .filter-btn.active { border-color: #5865f2; background: #1e2040; color: #7c8af7; }
+    .filter-badge { background: #5865f2; color: #fff; font-size: 0.7rem; font-weight: 700; border-radius: 99px; padding: 0.05rem 0.45rem; line-height: 1.5; }
     .active-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-    .tag-chip { background: #2a2a3a; border: 1px solid #5865f2; border-radius: 4px; padding: 0.2rem 0.6rem; font-size: 0.75rem; color: #aaa; cursor: pointer; }
-    .tag-chip:hover { background: #3a3a5a; }
-    .export-btn { margin-left: auto; padding: 0.45rem 1rem; background: #2a2a3a; color: #ccc; border: 1px solid #3a3a5a; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .tag-chip { background: #1e2040; border: 1px solid #5865f2; border-radius: 99px; padding: 0.2rem 0.7rem; font-size: 0.75rem; color: #7c8af7; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; gap: 0.3rem; }
+    .tag-chip:hover { background: #2a2a5a; }
+    .export-btn { margin-left: auto; padding: 0.45rem 1rem; background: #1a1a2e; color: #888; border: 1px solid #2a2a3a; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.15s; }
     .export-btn:hover { border-color: #5865f2; color: #fff; }
 
     /* painel de filtros */
-    .filter-panel { background: #1a1a2e; border: 1px solid #2a2a3a; border-radius: 8px; padding: 1.2rem 1.5rem; margin-bottom: 1rem; display: none; }
-    .filter-panel.open { display: block; }
-    .filter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.2rem; }
-    .filter-group label.group-label { display: block; font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
-    .checkbox-row { display: flex; flex-direction: column; gap: 0.35rem; }
-    .checkbox-row label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer; }
-    .checkbox-row input[type=checkbox] { accent-color: #5865f2; width: 14px; height: 14px; }
-    .range-row { display: flex; gap: 0.5rem; align-items: center; }
-    .range-row input[type=number] { width: 80px; padding: 0.35rem 0.5rem; background: #0f1117; border: 1px solid #2a2a3a; border-radius: 4px; color: #e0e0e0; font-size: 0.85rem; }
-    .range-row input[type=number]:focus { outline: none; border-color: #5865f2; }
-    .range-row span { color: #555; font-size: 0.8rem; }
-    .filter-name input { width: 100%; padding: 0.35rem 0.6rem; background: #0f1117; border: 1px solid #2a2a3a; border-radius: 4px; color: #e0e0e0; font-size: 0.85rem; }
-    .filter-name input:focus { outline: none; border-color: #5865f2; }
-    .filter-actions { display: flex; gap: 0.6rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #2a2a3a; }
-    .filter-actions button { padding: 0.4rem 1rem; border-radius: 5px; font-size: 0.85rem; cursor: pointer; border: none; }
-    .btn-apply { background: #5865f2; color: #fff; }
-    .btn-clear  { background: #2a2a3a; color: #ccc; }
-    .btn-clear:hover { background: #3a3a5a; }
+    .filter-panel { background: #13131f; border: 1px solid #2a2a3a; border-radius: 10px; padding: 0; margin-bottom: 1rem; overflow: hidden; max-height: 0; transition: max-height 0.25s ease, padding 0.25s ease; }
+    .filter-panel.open { max-height: 600px; }
+    .filter-panel-inner { padding: 1.4rem 1.6rem; }
+
+    .filter-section { margin-bottom: 1.2rem; }
+    .filter-section:last-child { margin-bottom: 0; }
+    .filter-section-title { font-size: 0.7rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.7rem; }
+
+    /* status como pills */
+    .status-pills { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .status-pill { padding: 0.35rem 0.9rem; border-radius: 99px; border: 1px solid #2a2a3a; font-size: 0.82rem; cursor: pointer; background: transparent; color: #666; transition: all 0.15s; user-select: none; }
+    .status-pill:hover { border-color: #444; color: #aaa; }
+    .status-pill.sel-platinado  { background: rgba(76,175,80,0.15);  border-color: #4caf50; color: #4caf50; }
+    .status-pill.sel-incompleto { background: rgba(255,193,7,0.12);  border-color: #ffc107; color: #ffc107; }
+    .status-pill.sel-nunca      { background: rgba(136,136,136,0.1); border-color: #666;    color: #aaa; }
+
+    /* divider */
+    .filter-divider { border: none; border-top: 1px solid #1e1e2e; margin: 1.1rem 0; }
+
+    /* ranges e nome */
+    .filter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .filter-field label { display: block; font-size: 0.7rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+    .range-inputs { display: flex; gap: 0.5rem; align-items: center; }
+    .range-inputs input { flex: 1; padding: 0.5rem 0.7rem; background: #0f1117; border: 1px solid #252535; border-radius: 6px; color: #ccc; font-size: 0.85rem; transition: border-color 0.15s; }
+    .range-inputs input:focus { outline: none; border-color: #5865f2; color: #fff; }
+    .range-inputs span { color: #333; font-size: 0.9rem; flex-shrink: 0; }
+    .name-input { width: 100%; padding: 0.5rem 0.7rem; background: #0f1117; border: 1px solid #252535; border-radius: 6px; color: #ccc; font-size: 0.85rem; transition: border-color 0.15s; }
+    .name-input:focus { outline: none; border-color: #5865f2; color: #fff; }
+
+    /* ações */
+    .filter-actions { display: flex; justify-content: flex-end; gap: 0.6rem; padding-top: 1rem; border-top: 1px solid #1e1e2e; margin-top: 1rem; }
+    .btn-apply { padding: 0.45rem 1.2rem; background: #5865f2; color: #fff; border: none; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: 600; transition: background 0.15s; }
+    .btn-apply:hover { background: #6b77f5; }
+    .btn-clear { padding: 0.45rem 1.2rem; background: transparent; color: #666; border: 1px solid #2a2a3a; border-radius: 6px; font-size: 0.85rem; cursor: pointer; transition: all 0.15s; }
+    .btn-clear:hover { border-color: #555; color: #aaa; }
 
     /* tabela */
     .table-info { font-size: 0.8rem; color: #555; margin-bottom: 0.5rem; }
@@ -123,9 +141,6 @@
     }
 
     function renderAll(data) {
-      const hoursMax = Math.ceil(Math.max(...data.games.map(g => g.hours), 0));
-      const achMax   = Math.max(...data.games.map(g => g.achievements), 0);
-
       results.innerHTML = `
         <div class="summary">
           <div>Total: <span>${data.total}</span></div>
@@ -144,39 +159,43 @@
         </div>
 
         <div class="filter-panel" id="filterPanel">
-          <div class="filter-grid">
-            <div class="filter-group">
-              <label class="group-label">Status</label>
-              <div class="checkbox-row">
-                <label><input type="checkbox" id="fPlatinado"   value="Platinado"    checked> Platinado</label>
-                <label><input type="checkbox" id="fIncompleto"  value="Incompleto"   checked> Incompleto</label>
-                <label><input type="checkbox" id="fNunca"       value="Nunca jogado" checked> Nunca jogado</label>
+          <div class="filter-panel-inner">
+            <div class="filter-section">
+              <div class="filter-section-title">Status</div>
+              <div class="status-pills">
+                <span class="status-pill" data-value="Platinado"    onclick="togglePill(this)">Platinado</span>
+                <span class="status-pill" data-value="Incompleto"   onclick="togglePill(this)">Incompleto</span>
+                <span class="status-pill" data-value="Nunca jogado" onclick="togglePill(this)">Nunca jogado</span>
               </div>
             </div>
-            <div class="filter-group">
-              <label class="group-label">Horas HLTB</label>
-              <div class="range-row">
-                <input type="number" id="fHoursMin" min="0" placeholder="Min">
-                <span>—</span>
-                <input type="number" id="fHoursMax" min="0" placeholder="Max" value="${hoursMax}">
+            <hr class="filter-divider">
+            <div class="filter-row">
+              <div class="filter-field">
+                <label>Horas HLTB</label>
+                <div class="range-inputs">
+                  <input type="number" id="fHoursMin" min="0" placeholder="Min">
+                  <span>—</span>
+                  <input type="number" id="fHoursMax" min="0" placeholder="Max">
+                </div>
+              </div>
+              <div class="filter-field">
+                <label>Conquistas</label>
+                <div class="range-inputs">
+                  <input type="number" id="fAchMin" min="0" placeholder="Min">
+                  <span>—</span>
+                  <input type="number" id="fAchMax" min="0" placeholder="Max">
+                </div>
               </div>
             </div>
-            <div class="filter-group">
-              <label class="group-label">Conquistas</label>
-              <div class="range-row">
-                <input type="number" id="fAchMin" min="0" placeholder="Min">
-                <span>—</span>
-                <input type="number" id="fAchMax" min="0" placeholder="Max" value="${achMax}">
-              </div>
+            <hr class="filter-divider">
+            <div class="filter-field">
+              <label>Nome do jogo</label>
+              <input type="text" class="name-input" id="fName" placeholder="Buscar por nome...">
             </div>
-            <div class="filter-group filter-name">
-              <label class="group-label">Nome do jogo</label>
-              <input type="text" id="fName" placeholder="Buscar...">
+            <div class="filter-actions">
+              <button class="btn-clear" onclick="clearFilters()">Limpar</button>
+              <button class="btn-apply" onclick="applyFilters()">Aplicar</button>
             </div>
-          </div>
-          <div class="filter-actions">
-            <button class="btn-apply" onclick="applyFilters()">Aplicar</button>
-            <button class="btn-clear"  onclick="clearFilters()">Limpar</button>
           </div>
         </div>
 
@@ -225,45 +244,50 @@
       btn.classList.toggle("active", isOpen);
     }
 
-    function applyFilters() {
-      const statuses = ["fPlatinado","fIncompleto","fNunca"]
-        .filter(id => document.getElementById(id).checked)
-        .map(id => document.getElementById(id).value);
+    function togglePill(el) {
+      const val = el.dataset.value;
+      const cls = val === "Platinado" ? "sel-platinado" : val === "Incompleto" ? "sel-incompleto" : "sel-nunca";
+      el.classList.toggle(cls);
+    }
 
-      const hoursMin = parseFloat(document.getElementById("fHoursMin").value) || 0;
-      const hoursMax = parseFloat(document.getElementById("fHoursMax").value) ?? Infinity;
-      const achMin   = parseInt(document.getElementById("fAchMin").value)   || 0;
-      const achMax   = parseInt(document.getElementById("fAchMax").value)   ?? Infinity;
+    function selectedStatuses() {
+      return [...document.querySelectorAll(".status-pill[class*='sel-']")]
+        .map(el => el.dataset.value);
+    }
+
+    function applyFilters() {
+      const statuses = selectedStatuses();
+      const hoursMin = parseFloat(document.getElementById("fHoursMin").value);
+      const hoursMax = parseFloat(document.getElementById("fHoursMax").value);
+      const achMin   = parseInt(document.getElementById("fAchMin").value);
+      const achMax   = parseInt(document.getElementById("fAchMax").value);
       const name     = document.getElementById("fName").value.trim().toLowerCase();
 
       activeFilters = { statuses, hoursMin, hoursMax, achMin, achMax, name };
 
-      const filtered = allGames.filter(g =>
-        statuses.includes(g.status) &&
-        g.hours        >= hoursMin &&
-        g.hours        <= (hoursMax || Infinity) &&
-        g.achievements >= achMin &&
-        g.achievements <= (achMax || Infinity) &&
-        (!name || g.name.toLowerCase().includes(name))
-      );
+      const filtered = allGames.filter(g => {
+        if (statuses.length && !statuses.includes(g.status)) return false;
+        if (!isNaN(hoursMin) && g.hours < hoursMin) return false;
+        if (!isNaN(hoursMax) && g.hours > hoursMax) return false;
+        if (!isNaN(achMin)   && g.achievements < achMin) return false;
+        if (!isNaN(achMax)   && g.achievements > achMax) return false;
+        if (name && !g.name.toLowerCase().includes(name)) return false;
+        return true;
+      });
 
       renderRows(filtered);
       updateTags();
-
-      // fecha o painel após aplicar
       document.getElementById("filterPanel").classList.remove("open");
       document.getElementById("filterToggle").classList.remove("active");
     }
 
     function clearFilters() {
-      document.getElementById("fPlatinado").checked  = true;
-      document.getElementById("fIncompleto").checked = true;
-      document.getElementById("fNunca").checked      = true;
-      document.getElementById("fHoursMin").value = "";
-      document.getElementById("fHoursMax").value = "";
-      document.getElementById("fAchMin").value   = "";
-      document.getElementById("fAchMax").value   = "";
-      document.getElementById("fName").value     = "";
+      document.querySelectorAll(".status-pill").forEach(p =>
+        p.className = "status-pill"
+      );
+      ["fHoursMin","fHoursMax","fAchMin","fAchMax","fName"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
       activeFilters = {};
       renderRows(allGames);
       updateTags();
@@ -274,29 +298,31 @@
       if (!container) return;
       const tags = [];
 
-      if (activeFilters.statuses && activeFilters.statuses.length < 3)
-        tags.push({ label: activeFilters.statuses.join(", "), key: "status" });
-      if (activeFilters.hoursMin > 0)
+      if (activeFilters.statuses?.length)
+        tags.push({ label: activeFilters.statuses.join(" · "), key: "status" });
+      if (!isNaN(activeFilters.hoursMin) && activeFilters.hoursMin > 0)
         tags.push({ label: `≥ ${activeFilters.hoursMin}h`, key: "hoursMin" });
-      if (activeFilters.hoursMax && activeFilters.hoursMax < Infinity)
+      if (!isNaN(activeFilters.hoursMax))
         tags.push({ label: `≤ ${activeFilters.hoursMax}h`, key: "hoursMax" });
-      if (activeFilters.achMin > 0)
+      if (!isNaN(activeFilters.achMin) && activeFilters.achMin > 0)
         tags.push({ label: `≥ ${activeFilters.achMin} conq.`, key: "achMin" });
-      if (activeFilters.achMax && activeFilters.achMax < Infinity)
+      if (!isNaN(activeFilters.achMax))
         tags.push({ label: `≤ ${activeFilters.achMax} conq.`, key: "achMax" });
       if (activeFilters.name)
         tags.push({ label: `"${activeFilters.name}"`, key: "name" });
 
+      const btn = document.getElementById("filterToggle");
+      const badge = tags.length ? `<span class="filter-badge">${tags.length}</span>` : "";
+      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M1.5 2h13l-5 6v5l-3-1.5V8L1.5 2z"/></svg> Filtros ${badge}`;
+
       container.innerHTML = tags
-        .map(t => `<span class="tag-chip" title="Clique para remover" onclick="removeFilter('${t.key}')">${t.label} ✕</span>`)
+        .map(t => `<span class="tag-chip" title="Remover filtro" onclick="removeFilter('${t.key}')"><span>${t.label}</span> ✕</span>`)
         .join("");
     }
 
     function removeFilter(key) {
       if (key === "status") {
-        document.getElementById("fPlatinado").checked  = true;
-        document.getElementById("fIncompleto").checked = true;
-        document.getElementById("fNunca").checked      = true;
+        document.querySelectorAll(".status-pill").forEach(p => p.className = "status-pill");
       } else if (key === "hoursMin") document.getElementById("fHoursMin").value = "";
       else if (key === "hoursMax")   document.getElementById("fHoursMax").value = "";
       else if (key === "achMin")     document.getElementById("fAchMin").value   = "";
