@@ -2,7 +2,7 @@ services:
   - type: web
     name: gerbitools
     runtime: python
-    buildCommand: git submodule update --init --recursive && pip install -r backend/requirements.txt
+    buildCommand: git clone https://github.com/Sethiiz/DeadIslandCollectables.git tools/DeadIslandCollectables && git clone https://github.com/Sethiiz/SteamPlatViewer.git tools/SteamPlatViewer && pip install -r backend/requirements.txt
     startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: STEAM_API_KEY
