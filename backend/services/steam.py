@@ -64,7 +64,7 @@ async def build_report(api_key: str, profile: str) -> PlatinumReport:
             steam_id = token
 
         summary = await client.get_player_summary(steam_id)
-        is_private = summary.get("communityvisibilitystate", 1) != 3
+        is_private = summary.get("communityvisibilitystate", 3) != 3
 
         games = await client.get_owned_games(steam_id)
 
@@ -72,10 +72,10 @@ async def build_report(api_key: str, profile: str) -> PlatinumReport:
         hltb_sem  = asyncio.Semaphore(HLTB_SEM)
         entries: list[GameEntry] = []
         lock = asyncio.Lock()
-        stats_private = False
+        private_count = 0
 
         async def process(game):
-            nonlocal stats_private
+            nonlocal private_count
             async with steam_sem:
                 ach_count = await client.get_achievement_count(game.appid)
             if ach_count == 0:
@@ -92,7 +92,7 @@ async def build_report(api_key: str, profile: str) -> PlatinumReport:
                 )
 
             if status == STATUS_PRIVATE:
-                stats_private = True
+                private_count += 1
                 return
 
             async with lock:
@@ -104,6 +104,7 @@ async def build_report(api_key: str, profile: str) -> PlatinumReport:
                     link_hltb=hltb.url,
                 ))
 
+        total_games = len(games)
         await asyncio.gather(*[process(g) for g in games])
         entries.sort(key=lambda e: e.hours)
 
@@ -114,7 +115,7 @@ async def build_report(api_key: str, profile: str) -> PlatinumReport:
             platinados=sum(1 for e in entries if e.status == STATUS_PLATINADO),
             incompletos=sum(1 for e in entries if e.status == STATUS_INCOMPLETE),
             nunca_jogados=sum(1 for e in entries if e.status == STATUS_NEVER),
-            privado=is_private or stats_private,
+            privado=is_private or private_count >= total_games * 0.20,
         )
 
 
@@ -134,7 +135,7 @@ async def build_report_stream(api_key: str, profile: str) -> AsyncGenerator[str,
                 steam_id = token
 
             summary = await client.get_player_summary(steam_id)
-            is_private = summary.get("communityvisibilitystate", 1) != 3
+            is_private = summary.get("communityvisibilitystate", 3) != 3
 
             games = await client.get_owned_games(steam_id)
             total = len(games)
@@ -146,10 +147,10 @@ async def build_report_stream(api_key: str, profile: str) -> AsyncGenerator[str,
             entries: list[GameEntry] = []
             lock  = asyncio.Lock()
             queue: asyncio.Queue = asyncio.Queue()
-            stats_private = False
+            private_count = 0
 
             async def process(game):
-                nonlocal stats_private
+                nonlocal private_count
                 try:
                     async with steam_sem:
                         ach_count = await client.get_achievement_count(game.appid)
@@ -164,7 +165,7 @@ async def build_report_stream(api_key: str, profile: str) -> AsyncGenerator[str,
                             steam_id, game.appid, game.playtime_forever, ach_count
                         )
                     if status == STATUS_PRIVATE:
-                        stats_private = True
+                        private_count += 1
                         return
                     async with lock:
                         entries.append(GameEntry(
@@ -182,7 +183,7 @@ async def build_report_stream(api_key: str, profile: str) -> AsyncGenerator[str,
             privacy_emitted = is_private
             for processed in range(1, total + 1):
                 await queue.get()
-                if stats_private and not privacy_emitted:
+                if private_count >= total * 0.20 and not privacy_emitted:
                     privacy_emitted = True
                     yield _sse({"type": "privacy"})
                 yield _sse({"type": "progress", "processed": processed, "total": total})
