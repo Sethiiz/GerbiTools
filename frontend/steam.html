@@ -115,14 +115,27 @@
       <button class="btn" id="searchBtn" onclick="doSearch()">Buscar</button>
     </div>
     <div id="status"></div>
+    <div id="privacyBanner"></div>
     <div id="results"></div>
   </main>
 
   <script>
-    const profileInput = document.getElementById("profileInput");
-    const searchBtn    = document.getElementById("searchBtn");
-    const status       = document.getElementById("status");
-    const results      = document.getElementById("results");
+    const profileInput  = document.getElementById("profileInput");
+    const searchBtn     = document.getElementById("searchBtn");
+    const status        = document.getElementById("status");
+    const results       = document.getElementById("results");
+    const privacyBanner = document.getElementById("privacyBanner");
+
+    function showPrivacyBanner() {
+      if (privacyBanner.innerHTML) return;
+      privacyBanner.innerHTML = `
+        <div class="privacy-warning">
+          <strong>⚠️ Seu perfil Steam está privado.</strong> Os dados de conquistas podem estar incompletos ou zerados.
+          <div class="privacy-steps">
+            Para corrigir: abra o <strong>Steam</strong> → clique no seu nome → <code>Ver meu perfil</code> → <code>Editar perfil</code> → <code>Configurações de privacidade</code> → <strong>Detalhes do meu jogo</strong> → selecione <code>Público</code>
+          </div>
+        </div>`;
+    }
 
     profileInput.addEventListener("keydown", e => { if (e.key === "Enter") doSearch(); });
 
@@ -135,10 +148,11 @@
       const profile = profileInput.value.trim();
       if (!profile) return;
 
-      searchBtn.disabled = true;
-      results.innerHTML  = "";
-      allGames           = [];
-      activeFilters      = {};
+      searchBtn.disabled      = true;
+      results.innerHTML       = "";
+      privacyBanner.innerHTML = "";
+      allGames                = [];
+      activeFilters           = {};
 
       status.innerHTML = `
         <div class="loader">
@@ -161,6 +175,10 @@
           document.getElementById("loaderText").textContent = "Processando jogos...";
           document.getElementById("progressWrap").style.display = "flex";
           document.getElementById("progressLabel").textContent = `0 / ${msg.total}`;
+          if (msg.privado) showPrivacyBanner();
+
+        } else if (msg.type === "privacy") {
+          showPrivacyBanner();
 
         } else if (msg.type === "progress") {
           const pct = Math.round((msg.processed / msg.total) * 100);
@@ -195,15 +213,9 @@
     }
 
     function renderAll(data) {
-      const privacyBanner = data.privado ? `
-        <div class="privacy-warning">
-          <strong>⚠️ Seu perfil Steam está privado.</strong> Os dados de conquistas podem estar incompletos ou zerados.
-          <div class="privacy-steps">
-            Para corrigir: abra o <strong>Steam</strong> → clique no seu nome → <code>Ver meu perfil</code> → <code>Editar perfil</code> → <code>Configurações de privacidade</code> → <strong>Detalhes do meu jogo</strong> → selecione <code>Público</code>
-          </div>
-        </div>` : "";
+      if (data.privado) showPrivacyBanner();
 
-      results.innerHTML = privacyBanner + `
+      results.innerHTML = `
         <div class="summary">
           <div>Total: <span>${data.total}</span></div>
           <div>Platinados: <span class="platinado">${data.platinados}</span></div>

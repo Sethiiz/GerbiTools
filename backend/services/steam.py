@@ -139,7 +139,7 @@ async def build_report_stream(api_key: str, profile: str) -> AsyncGenerator[str,
             games = await client.get_owned_games(steam_id)
             total = len(games)
 
-            yield _sse({"type": "start", "total": total})
+            yield _sse({"type": "start", "total": total, "privado": is_private})
 
             steam_sem = asyncio.Semaphore(STEAM_SEM)
             hltb_sem  = asyncio.Semaphore(HLTB_SEM)
@@ -179,8 +179,12 @@ async def build_report_stream(api_key: str, profile: str) -> AsyncGenerator[str,
 
             gather_fut = asyncio.gather(*[process(g) for g in games], return_exceptions=True)
 
+            privacy_emitted = is_private
             for processed in range(1, total + 1):
                 await queue.get()
+                if stats_private and not privacy_emitted:
+                    privacy_emitted = True
+                    yield _sse({"type": "privacy"})
                 yield _sse({"type": "progress", "processed": processed, "total": total})
 
             await gather_fut
