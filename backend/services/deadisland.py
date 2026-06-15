@@ -13,7 +13,6 @@ _TOOL_ROOT = os.path.abspath(
 )
 _PKG = "di_src"
 
-# Registra o pacote src do DeadIslandCollectables com nome único
 _pkg_mod = types.ModuleType(_PKG)
 _pkg_mod.__path__ = [os.path.join(_TOOL_ROOT, "src")]
 _pkg_mod.__package__ = _PKG

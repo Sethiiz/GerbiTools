@@ -5,7 +5,6 @@ import json
 import os
 import re
 import asyncio
-from typing import AsyncGenerator
 
 import aiohttp
 from models.steam import GameEntry, PlatinumReport
@@ -123,7 +122,7 @@ def _sse(payload: dict) -> str:
     return f"data: {json.dumps(payload)}\n\n"
 
 
-async def build_report_stream(api_key: str, profile: str) -> AsyncGenerator[str, None]:
+async def build_report_stream(api_key: str, profile: str):
     try:
         async with aiohttp.ClientSession() as session:
             client = SteamClient(session, api_key)
