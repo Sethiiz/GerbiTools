@@ -143,10 +143,13 @@
     let activeFilters = {};
     let currentSort = { key: "hours", dir: "asc" };
     let lastFiltered = [];
+    let currentEs = null;
 
     function doSearch() {
       const profile = profileInput.value.trim();
       if (!profile) return;
+
+      if (currentEs) { currentEs.close(); currentEs = null; }
 
       searchBtn.disabled      = true;
       results.innerHTML       = "";
@@ -167,6 +170,7 @@
         </div>`;
 
       const es = new EventSource(`/steam/platinum/stream?profile=${encodeURIComponent(profile)}`);
+      currentEs = es;
 
       es.onmessage = (e) => {
         const msg = JSON.parse(e.data);
@@ -187,6 +191,7 @@
 
         } else if (msg.type === "result") {
           es.close();
+          currentEs = null;
           allGames = msg.data.games;
           renderAll(msg.data);
           status.innerHTML   = "";
@@ -194,6 +199,7 @@
 
         } else if (msg.type === "error") {
           es.close();
+          currentEs = null;
           status.innerHTML   = `<span style="color:#ef5350;font-size:0.9rem;">Erro: ${msg.message}</span>`;
           searchBtn.disabled = false;
         }
@@ -201,6 +207,7 @@
 
       es.onerror = () => {
         es.close();
+        currentEs = null;
         status.innerHTML   = `<span style="color:#ef5350;font-size:0.9rem;">Erro: conexão interrompida.</span>`;
         searchBtn.disabled = false;
       };
@@ -214,6 +221,7 @@
 
     function renderAll(data) {
       if (data.privado) showPrivacyBanner();
+      else privacyBanner.innerHTML = "";
 
       results.innerHTML = `
         <div class="summary">
