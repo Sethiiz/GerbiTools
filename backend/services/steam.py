@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
 import re
 import asyncio
+from typing import AsyncGenerator
 
 import aiohttp
 from models.steam import GameEntry, PlatinumReport
@@ -107,3 +109,85 @@ async def build_report(api_key: str, profile: str) -> PlatinumReport:
             nunca_jogados=sum(1 for e in entries if e.status == STATUS_NEVER),
             privado=is_private,
         )
+
+
+def _sse(payload: dict) -> str:
+    return f"data: {json.dumps(payload)}\n\n"
+
+
+async def build_report_stream(api_key: str, profile: str) -> AsyncGenerator[str, None]:
+    try:
+        async with aiohttp.ClientSession() as session:
+            client = SteamClient(session, api_key)
+
+            token = _parse_profile(profile)
+            if not re.fullmatch(r"\d{17}", token):
+                steam_id = await client.resolve_vanity(token)
+            else:
+                steam_id = token
+
+            summary = await client.get_player_summary(steam_id)
+            is_private = summary.get("communityvisibilitystate", 1) != 3
+
+            games = await client.get_owned_games(steam_id)
+            total = len(games)
+
+            yield _sse({"type": "start", "total": total})
+
+            steam_sem = asyncio.Semaphore(STEAM_SEM)
+            hltb_sem  = asyncio.Semaphore(HLTB_SEM)
+            entries: list[GameEntry] = []
+            lock  = asyncio.Lock()
+            queue: asyncio.Queue = asyncio.Queue()
+
+            async def process(game):
+                try:
+                    async with steam_sem:
+                        ach_count = await client.get_achievement_count(game.appid)
+                    if ach_count == 0:
+                        return
+                    async with hltb_sem:
+                        hltb = await hltb_search(game.name)
+                    if hltb is None:
+                        return
+                    async with steam_sem:
+                        status = await client.get_player_status(
+                            steam_id, game.appid, game.playtime_forever, ach_count
+                        )
+                    async with lock:
+                        entries.append(GameEntry(
+                            name=game.name,
+                            status=status,
+                            hours=hltb.hours,
+                            achievements=ach_count,
+                            link_hltb=hltb.url,
+                        ))
+                finally:
+                    await queue.put(None)
+
+            gather_task = asyncio.create_task(
+                asyncio.gather(*[process(g) for g in games], return_exceptions=True)
+            )
+
+            for processed in range(1, total + 1):
+                await queue.get()
+                yield _sse({"type": "progress", "processed": processed, "total": total})
+
+            await gather_task
+
+            entries.sort(key=lambda e: e.hours)
+            report = PlatinumReport(
+                steam_id=steam_id,
+                games=entries,
+                total=len(entries),
+                platinados=sum(1 for e in entries if e.status == STATUS_PLATINADO),
+                incompletos=sum(1 for e in entries if e.status == STATUS_INCOMPLETE),
+                nunca_jogados=sum(1 for e in entries if e.status == STATUS_NEVER),
+                privado=is_private,
+            )
+            yield _sse({"type": "result", "data": report.model_dump()})
+
+    except ValueError as e:
+        yield _sse({"type": "error", "message": str(e)})
+    except Exception as e:
+        yield _sse({"type": "error", "message": f"Erro interno: {e}"})

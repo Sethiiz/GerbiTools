@@ -22,9 +22,12 @@
     .loader { display: flex; align-items: center; gap: 0.9rem; }
     .spinner { flex-shrink: 0; width: 22px; height: 22px; border: 2.5px solid #2a2a3a; border-top-color: #5865f2; border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-info { display: flex; flex-direction: column; gap: 0.4rem; }
     .loader-text { color: #888; font-size: 0.9rem; }
-    .loader-text::after { content: ""; animation: dots 1.4s steps(4, end) infinite; }
-    @keyframes dots { 0%,100% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; } }
+    .progress-wrap { display: flex; align-items: center; gap: 0.7rem; }
+    .progress-bar { width: 180px; height: 4px; background: #1a1a2e; border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #5865f2; border-radius: 99px; transition: width 0.2s ease; width: 0%; }
+    .progress-label { font-size: 0.78rem; color: #555; white-space: nowrap; }
 
     .summary { background: #1a1a2e; border-radius: 8px; padding: 1rem 1.5rem; margin: 1.5rem 0; display: flex; gap: 2rem; flex-wrap: wrap; }
     .summary div { font-size: 0.9rem; color: #888; }
@@ -128,28 +131,61 @@
     let currentSort = { key: "hours", dir: "asc" };
     let lastFiltered = [];
 
-    async function doSearch() {
+    function doSearch() {
       const profile = profileInput.value.trim();
       if (!profile) return;
 
       searchBtn.disabled = true;
-      status.innerHTML   = `<div class="loader"><div class="spinner"></div><span class="loader-text">Buscando jogos, isso pode levar alguns minutos</span></div>`;
       results.innerHTML  = "";
       allGames           = [];
       activeFilters      = {};
 
-      try {
-        const res  = await fetch(`/steam/platinum?profile=${encodeURIComponent(profile)}`);
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Erro desconhecido");
-        allGames = data.games;
-        renderAll(data);
-        status.innerHTML = "";
-      } catch (e) {
-        status.innerHTML = `<span style="color:#ef5350;font-size:0.9rem;">Erro: ${e.message}</span>`;
-      } finally {
+      status.innerHTML = `
+        <div class="loader">
+          <div class="spinner"></div>
+          <div class="loader-info">
+            <span class="loader-text" id="loaderText">Buscando jogos...</span>
+            <div class="progress-wrap" id="progressWrap" style="display:none">
+              <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+              <span class="progress-label" id="progressLabel"></span>
+            </div>
+          </div>
+        </div>`;
+
+      const es = new EventSource(`/steam/platinum/stream?profile=${encodeURIComponent(profile)}`);
+
+      es.onmessage = (e) => {
+        const msg = JSON.parse(e.data);
+
+        if (msg.type === "start") {
+          document.getElementById("loaderText").textContent = "Processando jogos...";
+          document.getElementById("progressWrap").style.display = "flex";
+          document.getElementById("progressLabel").textContent = `0 / ${msg.total}`;
+
+        } else if (msg.type === "progress") {
+          const pct = Math.round((msg.processed / msg.total) * 100);
+          document.getElementById("progressFill").style.width  = pct + "%";
+          document.getElementById("progressLabel").textContent = `${msg.processed} / ${msg.total}`;
+
+        } else if (msg.type === "result") {
+          es.close();
+          allGames = msg.data.games;
+          renderAll(msg.data);
+          status.innerHTML   = "";
+          searchBtn.disabled = false;
+
+        } else if (msg.type === "error") {
+          es.close();
+          status.innerHTML   = `<span style="color:#ef5350;font-size:0.9rem;">Erro: ${msg.message}</span>`;
+          searchBtn.disabled = false;
+        }
+      };
+
+      es.onerror = () => {
+        es.close();
+        status.innerHTML   = `<span style="color:#ef5350;font-size:0.9rem;">Erro: conexão interrompida.</span>`;
         searchBtn.disabled = false;
-      }
+      };
     }
 
     function statusClass(s) {
