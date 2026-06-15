@@ -32,11 +32,12 @@ def _load(relative: str):
 _steam_mod = _load("src/steam.py")
 _hltb_mod  = _load("src/hltb.py")
 
-SteamClient    = _steam_mod.SteamClient
+SteamClient       = _steam_mod.SteamClient
 STATUS_PLATINADO  = _steam_mod.STATUS_PLATINADO
 STATUS_NEVER      = _steam_mod.STATUS_NEVER
 STATUS_INCOMPLETE = _steam_mod.STATUS_INCOMPLETE
-hltb_search    = _hltb_mod.search
+STATUS_PRIVATE    = _steam_mod.STATUS_PRIVATE
+hltb_search       = _hltb_mod.search
 
 
 def _parse_profile(raw: str) -> str:
@@ -71,8 +72,10 @@ async def build_report(api_key: str, profile: str) -> PlatinumReport:
         hltb_sem  = asyncio.Semaphore(HLTB_SEM)
         entries: list[GameEntry] = []
         lock = asyncio.Lock()
+        stats_private = False
 
         async def process(game):
+            nonlocal stats_private
             async with steam_sem:
                 ach_count = await client.get_achievement_count(game.appid)
             if ach_count == 0:
@@ -87,6 +90,10 @@ async def build_report(api_key: str, profile: str) -> PlatinumReport:
                 status = await client.get_player_status(
                     steam_id, game.appid, game.playtime_forever, ach_count
                 )
+
+            if status == STATUS_PRIVATE:
+                stats_private = True
+                return
 
             async with lock:
                 entries.append(GameEntry(
@@ -107,7 +114,7 @@ async def build_report(api_key: str, profile: str) -> PlatinumReport:
             platinados=sum(1 for e in entries if e.status == STATUS_PLATINADO),
             incompletos=sum(1 for e in entries if e.status == STATUS_INCOMPLETE),
             nunca_jogados=sum(1 for e in entries if e.status == STATUS_NEVER),
-            privado=is_private,
+            privado=is_private or stats_private,
         )
 
 
@@ -139,8 +146,10 @@ async def build_report_stream(api_key: str, profile: str) -> AsyncGenerator[str,
             entries: list[GameEntry] = []
             lock  = asyncio.Lock()
             queue: asyncio.Queue = asyncio.Queue()
+            stats_private = False
 
             async def process(game):
+                nonlocal stats_private
                 try:
                     async with steam_sem:
                         ach_count = await client.get_achievement_count(game.appid)
@@ -154,6 +163,9 @@ async def build_report_stream(api_key: str, profile: str) -> AsyncGenerator[str,
                         status = await client.get_player_status(
                             steam_id, game.appid, game.playtime_forever, ach_count
                         )
+                    if status == STATUS_PRIVATE:
+                        stats_private = True
+                        return
                     async with lock:
                         entries.append(GameEntry(
                             name=game.name,
@@ -181,7 +193,7 @@ async def build_report_stream(api_key: str, profile: str) -> AsyncGenerator[str,
                 platinados=sum(1 for e in entries if e.status == STATUS_PLATINADO),
                 incompletos=sum(1 for e in entries if e.status == STATUS_INCOMPLETE),
                 nunca_jogados=sum(1 for e in entries if e.status == STATUS_NEVER),
-                privado=is_private,
+                privado=is_private or stats_private,
             )
             yield _sse({"type": "result", "data": report.model_dump()})
 
