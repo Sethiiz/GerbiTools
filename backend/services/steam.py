@@ -198,7 +198,7 @@ async def build_report_stream(api_key: str, profile: str) -> AsyncGenerator[str,
                 platinados=sum(1 for e in entries if e.status == STATUS_PLATINADO),
                 incompletos=sum(1 for e in entries if e.status == STATUS_INCOMPLETE),
                 nunca_jogados=sum(1 for e in entries if e.status == STATUS_NEVER),
-                privado=is_private or stats_private,
+                privado=is_private or private_count >= total * 0.20,
             )
             yield _sse({"type": "result", "data": report.model_dump()})
 
