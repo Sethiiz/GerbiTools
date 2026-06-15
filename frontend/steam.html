@@ -326,7 +326,7 @@
           <td>${i + 1}</td>
           <td>${g.name}</td>
           <td class="${statusClass(g.status)}">${g.status}</td>
-          <td>${g.achievements}</td>
+          <td>${g.achievements_unlocked < 0 ? "?" : g.achievements_unlocked} / ${g.achievements}</td>
           <td>${g.hours}h</td>
           <td><a href="${g.link_hltb}" target="_blank">HLTB</a></td>
         </tr>`).join("");

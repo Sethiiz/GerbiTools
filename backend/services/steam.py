@@ -86,7 +86,7 @@ async def build_report(api_key: str, profile: str) -> PlatinumReport:
                 return
 
             async with steam_sem:
-                status = await client.get_player_status(
+                status, unlocked = await client.get_player_status(
                     steam_id, game.appid, game.playtime_forever, ach_count
                 )
 
@@ -100,6 +100,7 @@ async def build_report(api_key: str, profile: str) -> PlatinumReport:
                     status=status,
                     hours=hltb.hours,
                     achievements=ach_count,
+                    achievements_unlocked=unlocked,
                     link_hltb=hltb.url,
                 ))
 
@@ -160,7 +161,7 @@ async def build_report_stream(api_key: str, profile: str):
                     if hltb is None:
                         return
                     async with steam_sem:
-                        status = await client.get_player_status(
+                        status, unlocked = await client.get_player_status(
                             steam_id, game.appid, game.playtime_forever, ach_count
                         )
                     if status == STATUS_PRIVATE:
@@ -172,6 +173,7 @@ async def build_report_stream(api_key: str, profile: str):
                             status=status,
                             hours=hltb.hours,
                             achievements=ach_count,
+                            achievements_unlocked=unlocked,
                             link_hltb=hltb.url,
                         ))
                 finally:

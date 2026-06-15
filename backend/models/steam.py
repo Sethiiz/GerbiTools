@@ -7,6 +7,7 @@ class GameEntry(BaseModel):
     status: str
     hours: float
     achievements: int
+    achievements_unlocked: int = -1
     link_hltb: str
 
 
