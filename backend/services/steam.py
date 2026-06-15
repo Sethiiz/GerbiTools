@@ -165,15 +165,13 @@ async def build_report_stream(api_key: str, profile: str) -> AsyncGenerator[str,
                 finally:
                     await queue.put(None)
 
-            gather_task = asyncio.create_task(
-                asyncio.gather(*[process(g) for g in games], return_exceptions=True)
-            )
+            gather_fut = asyncio.gather(*[process(g) for g in games], return_exceptions=True)
 
             for processed in range(1, total + 1):
                 await queue.get()
                 yield _sse({"type": "progress", "processed": processed, "total": total})
 
-            await gather_task
+            await gather_fut
 
             entries.sort(key=lambda e: e.hours)
             report = PlatinumReport(
